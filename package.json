@@ -1,0 +1,25 @@
+{
+  "name": "discord-gas-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HHK-ETH/discord-gas-bot.git"
+  },
+  "author": "",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/HHK-ETH/discord-gas-bot/issues"
+  },
+  "homepage": "https://github.com/HHK-ETH/discord-gas-bot#readme",
+  "dependencies": {
+    "discord.js": "^13.2.0",
+    "dotenv": "^10.0.0",
+    "node-fetch": "^3.0.0"
+  },
+  "type": "module"
+}
