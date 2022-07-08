@@ -1,25 +1,29 @@
 {
-  "name": "discord-gas-bot",
+  "name": "discord-gnosis-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
-    "start": "node index.js"
+    "start": "ts-node index.ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/HHK-ETH/discord-gas-bot.git"
+    "url": "git+https://github.com/HHK-ETH/discord-gnosis-bot.git"
   },
   "author": "",
   "license": "AGPL-3.0",
   "bugs": {
-    "url": "https://github.com/HHK-ETH/discord-gas-bot/issues"
+    "url": "https://github.com/HHK-ETH/discord-gnosis-bot/issues"
   },
-  "homepage": "https://github.com/HHK-ETH/discord-gas-bot#readme",
+  "homepage": "https://github.com/HHK-ETH/discord-gnosis-bot#readme",
   "dependencies": {
     "discord.js": "^13.2.0",
     "dotenv": "^10.0.0",
-    "node-fetch": "^3.0.0"
+    "node-fetch": "^3.0.0",
+    "ts-node": "^10.8.2",
+    "typescript": "^4.7.4"
   },
-  "type": "module"
+  "devDependencies": {
+    "@types/node": "^18.0.3"
+  }
 }
