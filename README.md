@@ -1,5 +1,5 @@
-# discord-gas-bot
-Very simple js discord Ethereum gas bot using Blocknative gas API.
+# discord-gnosis-bot
+Very simple js discord Ethereum gnosis bot.
 
 ## Usage
 
@@ -11,5 +11,3 @@ Very simple js discord Ethereum gas bot using Blocknative gas API.
 ## Available on
 
 * Sushiswap
-* Stargate
-* Layer zero
