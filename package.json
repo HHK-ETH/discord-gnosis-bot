@@ -17,9 +17,9 @@
   },
   "homepage": "https://github.com/HHK-ETH/discord-gnosis-bot#readme",
   "dependencies": {
+    "axios": "^0.27.2",
     "discord.js": "^13.2.0",
     "dotenv": "^10.0.0",
-    "node-fetch": "^3.0.0",
     "ts-node": "^10.8.2",
     "typescript": "^4.7.4"
   },
