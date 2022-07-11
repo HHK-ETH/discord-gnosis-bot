@@ -14,6 +14,10 @@ const routine = async function (textChannel: TextChannel) {
   }
 
   const txs = await querySafeTxs(process.env.GNOSIS_ADDRESS);
+  if (txs === null) {
+    //error querying the api.
+    return;
+  }
   const oldTxs = await storageHelper.read();
 
   if (!oldTxs.new) {
