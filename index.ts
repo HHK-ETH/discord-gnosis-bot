@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import { Client, Intents, TextChannel } from 'discord.js';
 import StorageHelper from './src/StorageHelper';
 import { querySafeTxs } from './src/gnosis';
-import { compareAndNotify } from './src/notify';
+import { compareAndNotify, replyUnsignedTxs } from './src/notify';
 dotenv.config();
 
 const client = new Client({ intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS] });
@@ -50,6 +50,13 @@ client.login(process.env.DISCORD_TOKEN).then(
 
         //set routine
         setInterval(() => routine(textChannel), 15_000);
+        //add command
+        client.on('messageCreate', async (message) => {
+          if (message.channelId === process.env.CHANNEL && message.content === '!infos') {
+            const txs = await storageHelper.read();
+            replyUnsignedTxs(txs, message);
+          }
+        });
       },
       (err) => {
         console.log(err);

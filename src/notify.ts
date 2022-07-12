@@ -1,4 +1,4 @@
-import { TextChannel, MessageEmbed } from 'discord.js';
+import { TextChannel, MessageEmbed, Message } from 'discord.js';
 import { Contract, BigNumber, ethers } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
 import { ERC20_ABI } from './../imports';
@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const PROVIDER = new ethers.providers.JsonRpcProvider(process.env.RPC);
+if (!process.env.SECURITY) throw Error('SECURITY field missing from .env.');
+const CONFIRMATIONS = parseInt(process.env.SECURITY, 10);
 
 export async function compareAndNotify(txs: any, oldTxs: any, textChannel: TextChannel): Promise<void> {
   const amountOfNewTxs: number = txs.results.length - oldTxs.results.length;
@@ -30,6 +32,32 @@ export async function compareAndNotify(txs: any, oldTxs: any, textChannel: TextC
   }
 }
 
+export function replyUnsignedTxs(txs: any, message: Message): void {
+  let amountTxToExecute = 0;
+  let amountTxToSign = 0;
+  for (let i = 0; i < txs.results.length; i++) {
+    const txState = txs.results[i];
+    if (!txState.isExecuted) {
+      if (txState.confirmations.length < CONFIRMATIONS) {
+        amountTxToSign += 1;
+      } else {
+        amountTxToExecute += 1;
+      }
+    } else {
+      break;
+    }
+  }
+  message.reply(
+    'There is currently ' +
+      amountTxToSign +
+      ' transaction(s) waiting to be signed and ' +
+      amountTxToExecute +
+      ' ready to be executed (more details here: (https://gnosis-safe.io/app/matic:' +
+      process.env.GNOSIS_ADDRESS +
+      '/transactions/queue)).'
+  );
+}
+
 async function notifyExecution(txState: any, textChannel: TextChannel): Promise<void> {
   const description = await decodeData(txState.to, txState.data, txState.value);
 
@@ -47,8 +75,7 @@ async function notifyExecution(txState: any, textChannel: TextChannel): Promise<
 
 async function notifyNewTx(txState: any, textChannel: TextChannel): Promise<void> {
   const description = await decodeData(txState.to, txState.data, txState.value);
-  const confirmationsNeeded =
-    process.env.SECURITY !== undefined ? parseInt(process.env.SECURITY, 10) - txState.confirmations.length : 0;
+  const confirmationsNeeded = CONFIRMATIONS - txState.confirmations.length;
 
   const msg = new MessageEmbed()
     .setTitle('New multisig transaction submitted.')
