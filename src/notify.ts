@@ -91,6 +91,9 @@ async function notifyNewTx(txState: any, textChannel: TextChannel): Promise<void
 
 async function decodeData(address: string, data: string, value: BigNumber): Promise<string> {
   const erc20value = await erc20decoder(address, data, value);
+  if (data === null) {
+    return 'Transfer ' + formatUnits(value, 18) + ' ETH from multisig to ' + address;
+  }
   if (erc20value !== null) {
     return erc20value;
   }
