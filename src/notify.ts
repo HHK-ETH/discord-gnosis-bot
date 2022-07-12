@@ -1,8 +1,11 @@
 import { TextChannel, MessageEmbed } from 'discord.js';
+import { Contract, BigNumber, ethers } from 'ethers';
+import { formatUnits } from 'ethers/lib/utils';
+import { ERC20_ABI } from './../imports';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const messageEmbed = new MessageEmbed()
-  .setURL('https://gnosis-safe.io/app/matic:' + process.env.GNOSIS_ADDRESS + '/transactions/history')
-  .setTimestamp();
+const PROVIDER = new ethers.providers.JsonRpcProvider(process.env.RPC);
 
 export async function compareAndNotify(txs: any, oldTxs: any, textChannel: TextChannel): Promise<void> {
   const amountOfNewTxs: number = txs.results.length - oldTxs.results.length;
@@ -28,25 +31,58 @@ export async function compareAndNotify(txs: any, oldTxs: any, textChannel: TextC
 }
 
 async function notifyExecution(txState: any, textChannel: TextChannel): Promise<void> {
-  console.log('notify execution');
-  const msg = messageEmbed;
-  msg
+  const description = await decodeData(txState.to, txState.data, txState.value);
+
+  const msg = new MessageEmbed()
     .setTitle('New multisig transaction executed.')
-    .setDescription('Transaction hash: ' + txState.transactionHash)
-    .addField('Nonce', txState.nonce.toString(), false)
-    .addField('Execution date', txState.executionDate, false)
-    .addField('Executor', txState.executor, false);
+    .setDescription(description)
+    .addField('Transaction hash', txState.transactionHash)
+    .addField('Nonce', txState.nonce.toString(), true)
+    .addField('Execution date', txState.executionDate, true)
+    .addField('Executor', txState.executor, false)
+    .setURL('https://gnosis-safe.io/app/matic:' + process.env.GNOSIS_ADDRESS + '/transactions/history')
+    .setTimestamp();
   await textChannel.send({ embeds: [msg] });
 }
 
 async function notifyNewTx(txState: any, textChannel: TextChannel): Promise<void> {
-  console.log('notify creation!');
-  const msg = messageEmbed;
-  msg
+  const description = await decodeData(txState.to, txState.data, txState.value);
+  const confirmationsNeeded =
+    process.env.SECURITY !== undefined ? parseInt(process.env.SECURITY, 10) - txState.confirmations.length : 0;
+
+  const msg = new MessageEmbed()
     .setTitle('New multisig transaction submitted.')
-    .setDescription('Safe hash: ' + txState.safeTxHash)
-    .addField('Nonce', txState.nonce.toString(), false)
-    .addField('Submission date', txState.submissionDate, false)
-    .addField('Confirmation required to execute', (1 - txState.confirmations.length).toString(), false);
+    .setDescription(description)
+    .addField('Safe hash', txState.safeTxHash)
+    .addField('Nonce', txState.nonce.toString(), true)
+    .addField('Submission date', txState.submissionDate, true)
+    .addField('Confirmation required to execute', confirmationsNeeded.toString() + ' remaining.', false)
+    .setURL('https://gnosis-safe.io/app/matic:' + process.env.GNOSIS_ADDRESS + '/transactions/queue')
+    .setTimestamp();
   await textChannel.send({ embeds: [msg] });
+}
+
+async function decodeData(address: string, data: string, value: BigNumber): Promise<string> {
+  const erc20value = await erc20decoder(address, data, value);
+  if (erc20value !== null) {
+    return erc20value;
+  }
+  return 'Unable to decode this transaction.';
+}
+
+async function erc20decoder(address: string, data: string, value: BigNumber): Promise<string | null> {
+  const erc20 = new Contract(address, ERC20_ABI, PROVIDER);
+  try {
+    const decoded = erc20.interface.parseTransaction({ data, value });
+    const tokenName = await erc20.symbol();
+    const decimals = await erc20.decimals();
+    const amount = decoded.args.amount;
+    const receiver = decoded.args.recipient;
+    if (decoded.name === 'transferFrom' || decoded.name === 'transfer') {
+      return 'Transfer ' + formatUnits(amount, decimals) + ' ' + tokenName + ' from multisig to ' + receiver;
+    }
+    return '';
+  } catch (e) {
+    return null;
+  }
 }
