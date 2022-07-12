@@ -76,12 +76,17 @@ async function erc20decoder(address: string, data: string, value: BigNumber): Pr
     const decoded = erc20.interface.parseTransaction({ data, value });
     const tokenName = await erc20.symbol();
     const decimals = await erc20.decimals();
-    const amount = decoded.args.amount;
-    const receiver = decoded.args.recipient;
     if (decoded.name === 'transferFrom' || decoded.name === 'transfer') {
+      const amount = decoded.args.amount;
+      const receiver = decoded.args.recipient;
       return 'Transfer ' + formatUnits(amount, decimals) + ' ' + tokenName + ' from multisig to ' + receiver;
     }
-    return '';
+    if (decoded.name === 'approve') {
+      const amount = decoded.args.amount;
+      const spender = decoded.args.spender;
+      return 'Approve ' + formatUnits(amount, decimals) + ' ' + tokenName + ' on ' + spender;
+    }
+    return null;
   } catch (e) {
     return null;
   }
