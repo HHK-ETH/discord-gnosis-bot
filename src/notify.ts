@@ -52,7 +52,7 @@ export function replyUnsignedTxs(txs: any, message: Message): void {
       amountTxToSign +
       ' transaction(s) waiting to be signed and ' +
       amountTxToExecute +
-      ' ready to be executed (more details here: (https://gnosis-safe.io/app/matic:' +
+      ' ready to be executed (more details here: (https://gnosis-safe.io/app/eth:' +
       process.env.GNOSIS_ADDRESS +
       '/transactions/queue).'
   );
@@ -68,7 +68,7 @@ async function notifyExecution(txState: any, textChannel: TextChannel): Promise<
     .addField('Nonce', txState.nonce.toString(), true)
     .addField('Execution date', txState.executionDate, true)
     .addField('Executor', txState.executor, false)
-    .setURL('https://gnosis-safe.io/app/matic:' + process.env.GNOSIS_ADDRESS + '/transactions/history')
+    .setURL('https://gnosis-safe.io/app/eth:' + process.env.GNOSIS_ADDRESS + '/transactions/history')
     .setTimestamp();
   await textChannel.send({ embeds: [msg] });
 }
@@ -84,7 +84,7 @@ async function notifyNewTx(txState: any, textChannel: TextChannel): Promise<void
     .addField('Nonce', txState.nonce.toString(), true)
     .addField('Submission date', txState.submissionDate, true)
     .addField('Confirmation required to execute', confirmationsNeeded.toString() + ' remaining.', false)
-    .setURL('https://gnosis-safe.io/app/matic:' + process.env.GNOSIS_ADDRESS + '/transactions/queue')
+    .setURL('https://gnosis-safe.io/app/eth:' + process.env.GNOSIS_ADDRESS + '/transactions/queue')
     .setTimestamp();
   await textChannel.send({ embeds: [msg] });
 }
