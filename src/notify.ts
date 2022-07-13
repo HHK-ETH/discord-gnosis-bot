@@ -54,7 +54,7 @@ export function replyUnsignedTxs(txs: any, message: Message): void {
       amountTxToExecute +
       ' ready to be executed (more details here: (https://gnosis-safe.io/app/matic:' +
       process.env.GNOSIS_ADDRESS +
-      '/transactions/queue)).'
+      '/transactions/queue).'
   );
 }
 
