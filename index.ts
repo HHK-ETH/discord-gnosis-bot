@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import { Client, Intents, TextChannel } from 'discord.js';
-import StorageHelper from './src/StorageHelper';
+import StorageHelper from './src/storageHelper';
 import { querySafeTxs } from './src/gnosis';
 import { compareAndNotify, replyUnsignedTxs } from './src/notify';
 dotenv.config();
