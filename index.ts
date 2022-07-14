@@ -50,13 +50,14 @@ client.login(process.env.DISCORD_TOKEN).then(
 
         //set routine
         setInterval(() => routine(textChannel), 15_000);
-        //add command
+
+        //add commands
         client.on('interactionCreate', async (interaction) => {
           if (!interaction.isCommand()) return;
 
-          const { commandName, channelId } = interaction;
+          const { commandName } = interaction;
 
-          if (commandName === 'safe-infos' && channelId === process.env.CHANNEL) {
+          if (commandName === 'safe-infos') {
             const txs = await storageHelper.read();
             replyUnsignedTxs(txs, interaction);
           }
