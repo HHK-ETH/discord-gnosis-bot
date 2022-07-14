@@ -1,4 +1,4 @@
-import { TextChannel, MessageEmbed, Message } from 'discord.js';
+import { TextChannel, MessageEmbed, Message, CommandInteraction } from 'discord.js';
 import { Contract, BigNumber, ethers } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
 import { ERC20_ABI } from './../imports';
@@ -32,7 +32,7 @@ export async function compareAndNotify(txs: any, oldTxs: any, textChannel: TextC
   }
 }
 
-export function replyUnsignedTxs(txs: any, message: Message): void {
+export function replyUnsignedTxs(txs: any, interaction: CommandInteraction): void {
   let amountTxToExecute = 0;
   let amountTxToSign = 0;
   for (let i = 0; i < txs.results.length; i++) {
@@ -47,15 +47,17 @@ export function replyUnsignedTxs(txs: any, message: Message): void {
       break;
     }
   }
-  message.reply(
-    'There is currently ' +
+  interaction.reply({
+    content:
+      'There is currently ' +
       amountTxToSign +
       ' transaction(s) waiting to be signed and ' +
       amountTxToExecute +
       ' ready to be executed (more details here: (https://gnosis-safe.io/app/eth:' +
       process.env.GNOSIS_ADDRESS +
-      '/transactions/queue).'
-  );
+      '/transactions/queue).',
+    ephemeral: true,
+  });
 }
 
 async function notifyExecution(txState: any, textChannel: TextChannel): Promise<void> {
