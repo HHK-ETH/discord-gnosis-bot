@@ -5,6 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "start": "ts-node index.ts",
+    "deploy-commands": "ts-node scripts/deploy-commands.ts",
     "build": "tsc --build"
   },
   "repository": {
@@ -18,7 +19,10 @@
   },
   "homepage": "https://github.com/HHK-ETH/discord-gnosis-bot#readme",
   "dependencies": {
+    "@discordjs/builders": "^0.15.0",
+    "@discordjs/rest": "^0.5.0",
     "axios": "^0.27.2",
+    "discord-api-types": "^0.36.2",
     "discord.js": "^13.2.0",
     "dotenv": "^10.0.0",
     "ethers": "^5.6.9",

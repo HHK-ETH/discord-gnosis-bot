@@ -73,4 +73,7 @@
   "include": [
     "./*"
   ],
+  "exclude": [
+    "./scripts"
+  ]
 }
