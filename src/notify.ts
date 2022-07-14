@@ -32,7 +32,7 @@ export async function compareAndNotify(txs: any, oldTxs: any, textChannel: TextC
   }
 }
 
-export function replyUnsignedTxs(txs: any, interaction: CommandInteraction): void {
+export async function replyUnsignedTxs(txs: any, interaction: CommandInteraction): Promise<void> {
   let amountTxToExecute = 0;
   let amountTxToSign = 0;
   for (let i = 0; i < txs.results.length; i++) {
@@ -47,7 +47,7 @@ export function replyUnsignedTxs(txs: any, interaction: CommandInteraction): voi
       break;
     }
   }
-  interaction.reply({
+  await interaction.editReply({
     content:
       'There is currently ' +
       amountTxToSign +
@@ -56,7 +56,6 @@ export function replyUnsignedTxs(txs: any, interaction: CommandInteraction): voi
       ' ready to be executed (more details here: (https://gnosis-safe.io/app/eth:' +
       process.env.GNOSIS_ADDRESS +
       '/transactions/queue).',
-    ephemeral: true,
   });
 }
 

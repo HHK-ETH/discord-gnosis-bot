@@ -58,8 +58,9 @@ client.login(process.env.DISCORD_TOKEN).then(
           const { commandName } = interaction;
 
           if (commandName === 'safe-infos') {
+            await interaction.deferReply({ ephemeral: true });
             const txs = await storageHelper.read();
-            replyUnsignedTxs(txs, interaction);
+            await replyUnsignedTxs(txs, interaction);
           }
         });
       },
