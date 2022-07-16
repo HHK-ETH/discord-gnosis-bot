@@ -8,7 +8,7 @@ dotenv.config();
 const client = new Client({ intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS] });
 const storageHelper = StorageHelper.getInstance();
 
-const routine = async function (textChannel: TextChannel) {
+const routine = async function (textChannels: TextChannel[]) {
   if (!process.env.GNOSIS_ADDRESS) {
     throw Error('Gnosis address not set.');
   }
@@ -22,7 +22,7 @@ const routine = async function (textChannel: TextChannel) {
 
   if (!oldTxs.new) {
     //file not new, compare states and notify
-    await compareAndNotify(txs, oldTxs, textChannel);
+    await compareAndNotify(txs, oldTxs, textChannels);
   }
   //write new state
   await storageHelper.write(txs);
@@ -30,16 +30,19 @@ const routine = async function (textChannel: TextChannel) {
 
 //discord api setup
 client.login(process.env.DISCORD_TOKEN).then(
-  () => {
-    if (!process.env.GUILD || !process.env.CHANNEL) throw Error('.env files missing guild or channel id.');
+  async () => {
+    if (!process.env.GUILDS || !process.env.CHANNELS) throw Error('.env files missing guild or channel id.');
 
-    const guild = client.guilds.cache.get(process.env.GUILD);
-    if (!guild) {
-      throw Error('Impossible to connect to this guild.');
-    }
+    const guilds = process.env.GUILDS.split(' ');
+    const channels = process.env.CHANNELS.split(' ');
 
-    guild.channels.fetch(process.env.CHANNEL).then(
-      async (channel) => {
+    const textChannels = await Promise.all(
+      guilds.map(async (guildId, index) => {
+        const guild = client.guilds.cache.get(guildId);
+        if (!guild) {
+          throw Error('Impossible to connect to guild: ' + guildId);
+        }
+        const channel = await guild.channels.fetch(channels[index]);
         if (!channel) {
           throw Error("Can't connect to this channel.");
         }
@@ -47,28 +50,25 @@ client.login(process.env.DISCORD_TOKEN).then(
         if (!(textChannel instanceof TextChannel)) {
           throw Error('This channel is not a text channel.');
         }
-
-        //set routine
-        setInterval(() => routine(textChannel), 15_000);
-
-        //add commands
-        client.on('interactionCreate', async (interaction) => {
-          if (!interaction.isCommand()) return;
-
-          const { commandName } = interaction;
-
-          if (commandName === 'safe-infos') {
-            await interaction.deferReply({ ephemeral: true });
-            const txs = await storageHelper.read();
-            await replyUnsignedTxs(txs, interaction);
-          }
-        });
-      },
-      (err) => {
-        console.log(err);
-        throw Error("Can't connect to this channel.");
-      }
+        return textChannel;
+      })
     );
+
+    //set routine
+    setInterval(() => routine(textChannels), 30_000);
+
+    //add commands
+    client.on('interactionCreate', async (interaction) => {
+      if (!interaction.isCommand()) return;
+
+      const { commandName } = interaction;
+
+      if (commandName === 'safe-infos') {
+        await interaction.deferReply({ ephemeral: true });
+        const txs = await storageHelper.read();
+        await replyUnsignedTxs(txs, interaction);
+      }
+    });
   },
   (err) => {
     console.log(err);

@@ -9,7 +9,7 @@ const PROVIDER = new ethers.providers.JsonRpcProvider(process.env.RPC);
 if (!process.env.SECURITY) throw Error('SECURITY field missing from .env.');
 const CONFIRMATIONS = parseInt(process.env.SECURITY, 10);
 
-export async function compareAndNotify(txs: any, oldTxs: any, textChannel: TextChannel): Promise<void> {
+export async function compareAndNotify(txs: any, oldTxs: any, textChannels: TextChannel[]): Promise<void> {
   const amountOfNewTxs: number = txs.results.length - oldTxs.results.length;
   //notify txs state change
   for (let i = oldTxs.results.length - amountOfNewTxs - 1; i >= 0; i -= 1) {
@@ -19,7 +19,7 @@ export async function compareAndNotify(txs: any, oldTxs: any, textChannel: TextC
       //tx was not executed, check new state
       const newTxState = txs.results[i + amountOfNewTxs];
       if (newTxState.isExecuted) {
-        await notifyExecution(newTxState, textChannel);
+        await notifyExecution(newTxState, textChannels);
       }
     }
   }
@@ -27,7 +27,7 @@ export async function compareAndNotify(txs: any, oldTxs: any, textChannel: TextC
   if (amountOfNewTxs > 0) {
     for (let i = amountOfNewTxs - 1; i >= 0; i -= 1) {
       const txState = txs.results[i];
-      await notifyNewTx(txState, textChannel);
+      await notifyNewTx(txState, textChannels);
     }
   }
 }
@@ -59,7 +59,7 @@ export async function replyUnsignedTxs(txs: any, interaction: CommandInteraction
   });
 }
 
-async function notifyExecution(txState: any, textChannel: TextChannel): Promise<void> {
+async function notifyExecution(txState: any, textChannels: TextChannel[]): Promise<void> {
   const description = await decodeData(txState.to, txState.data, txState.value);
 
   const msg = new MessageEmbed()
@@ -71,10 +71,12 @@ async function notifyExecution(txState: any, textChannel: TextChannel): Promise<
     .addField('Executor', txState.executor, false)
     .setURL('https://gnosis-safe.io/app/eth:' + process.env.GNOSIS_ADDRESS + '/transactions/history')
     .setTimestamp();
-  await textChannel.send({ embeds: [msg] });
+  textChannels.map(async (textChannel) => {
+    await textChannel.send({ embeds: [msg] });
+  });
 }
 
-async function notifyNewTx(txState: any, textChannel: TextChannel): Promise<void> {
+async function notifyNewTx(txState: any, textChannels: TextChannel[]): Promise<void> {
   const description = await decodeData(txState.to, txState.data, txState.value);
   const confirmationsNeeded = CONFIRMATIONS - txState.confirmations.length;
 
@@ -87,7 +89,9 @@ async function notifyNewTx(txState: any, textChannel: TextChannel): Promise<void
     .addField('Confirmation required to execute', confirmationsNeeded.toString() + ' remaining.', false)
     .setURL('https://gnosis-safe.io/app/eth:' + process.env.GNOSIS_ADDRESS + '/transactions/queue')
     .setTimestamp();
-  await textChannel.send({ embeds: [msg] });
+  textChannels.map(async (textChannel) => {
+    await textChannel.send({ embeds: [msg] });
+  });
 }
 
 async function decodeData(address: string, data: string, value: BigNumber): Promise<string> {
