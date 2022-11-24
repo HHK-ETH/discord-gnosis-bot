@@ -10,9 +10,9 @@ if (!process.env.SECURITY) throw Error('SECURITY field missing from .env.');
 const CONFIRMATIONS = parseInt(process.env.SECURITY, 10);
 
 export async function compareAndNotify(txs: any, oldTxs: any, textChannels: TextChannel[]): Promise<void> {
-  const amountOfNewTxs: number = txs.results.length - oldTxs.results.length;
+  const amountOfNewTxs: number = txs.count - oldTxs.count;
   //notify txs state change
-  for (let i = oldTxs.results.length - amountOfNewTxs - 1; i >= 0; i -= 1) {
+  for (let i = oldTxs.results.length - 1; i >= 0; i -= 1) {
     const oldTxState = oldTxs.results[i];
 
     if (!oldTxState.isExecuted) {

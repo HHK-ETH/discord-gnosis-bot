@@ -55,6 +55,7 @@ client.login(process.env.DISCORD_TOKEN).then(
     );
 
     //set routine
+    await routine(textChannels);
     setInterval(() => routine(textChannels), 30_000);
 
     //add commands
