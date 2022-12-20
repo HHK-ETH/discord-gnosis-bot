@@ -53,7 +53,7 @@ export async function replyUnsignedTxs(txs: any, interaction: CommandInteraction
       amountTxToSign +
       ' transaction(s) waiting to be signed and ' +
       amountTxToExecute +
-      ' ready to be executed (more details here: (https://gnosis-safe.io/app/eth:' +
+      ' ready to be executed (more details here: (https://app.safe.global/eth:' +
       process.env.GNOSIS_ADDRESS +
       '/transactions/queue).',
   });
