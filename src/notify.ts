@@ -69,7 +69,7 @@ async function notifyExecution(txState: any, textChannels: TextChannel[]): Promi
     .addField('Nonce', txState.nonce.toString(), true)
     .addField('Execution date', txState.executionDate, true)
     .addField('Executor', txState.executor, false)
-    .setURL('https://gnosis-safe.io/app/eth:' + process.env.GNOSIS_ADDRESS + '/transactions/history')
+    .setURL('https://app.safe.global/eth:' + process.env.GNOSIS_ADDRESS + '/transactions/history')
     .setTimestamp();
   textChannels.map(async (textChannel) => {
     await textChannel.send({ embeds: [msg] });
@@ -87,7 +87,7 @@ async function notifyNewTx(txState: any, textChannels: TextChannel[]): Promise<v
     .addField('Nonce', txState.nonce.toString(), true)
     .addField('Submission date', txState.submissionDate, true)
     .addField('Confirmation required to execute', confirmationsNeeded.toString() + ' remaining.', false)
-    .setURL('https://gnosis-safe.io/app/eth:' + process.env.GNOSIS_ADDRESS + '/transactions/queue')
+    .setURL('https://app.safe.global/eth:' + process.env.GNOSIS_ADDRESS + '/transactions/queue')
     .setTimestamp();
   textChannels.map(async (textChannel) => {
     await textChannel.send({ embeds: [msg] });
